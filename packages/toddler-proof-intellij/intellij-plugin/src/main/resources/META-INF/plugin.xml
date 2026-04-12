@@ -1,0 +1,34 @@
+<idea-plugin>
+    <id>com.weavy.toddlerproof</id>
+    <name>Toddler-Proof Editor</name>
+    <vendor>weavy</vendor>
+    <description><![CDATA[
+        Detects when keystrokes look like a toddler or pet mashing the keyboard and locks down
+        the editor to protect your work, showing a colorful interactive screen instead.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <applicationService
+            serviceImplementation="toddlerproof.intellij.service.ToddlerDetectionService"/>
+        <applicationConfigurable
+            parentId="tools"
+            instance="toddlerproof.intellij.settings.ToddlerProofConfigurable"
+            id="com.weavy.toddlerproof.settings"
+            displayName="Toddler-Proof Editor"/>
+    </extensions>
+
+    <applicationListeners>
+        <listener class="toddlerproof.intellij.listener.AppStartupListener"
+                  topic="com.intellij.ide.AppLifecycleListener"/>
+    </applicationListeners>
+
+    <actions>
+        <action id="ToddlerProof.Toggle"
+                class="toddlerproof.intellij.action.ToggleAction"
+                text="Toggle Toddler-Proof Mode"
+                description="Enable or disable toddler mash detection">
+        </action>
+    </actions>
+</idea-plugin>
