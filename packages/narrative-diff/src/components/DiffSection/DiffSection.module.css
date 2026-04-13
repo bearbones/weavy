@@ -1,0 +1,191 @@
+.section {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.focused {
+  opacity: 1;
+}
+
+.dimmed {
+  opacity: var(--section-dimmed-opacity);
+}
+
+.dimmed:hover {
+  opacity: 0.75;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerLeft {
+  flex: 1;
+  min-width: 0;
+}
+
+.heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.rationale {
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.crossLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-accent-muted);
+}
+
+.crossLinkButton {
+  background: none;
+  border: 1px solid var(--color-accent);
+  color: var(--color-accent);
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.crossLinkButton:hover {
+  background: var(--color-accent);
+  color: var(--color-bg);
+}
+
+.entries {
+  /* no extra padding — file entries handle their own */
+}
+
+.fileEntry {
+  border-top: 1px solid var(--color-border);
+}
+
+.fileEntry:first-child {
+  border-top: none;
+}
+
+.filePath {
+  padding: 8px 16px;
+  font-size: 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.fileStatus {
+  margin-right: 8px;
+  font-weight: 700;
+}
+
+.fileStatus[data-status="added"] {
+  color: var(--color-add-text);
+}
+
+.fileStatus[data-status="deleted"] {
+  color: var(--color-delete-text);
+}
+
+.fileStatus[data-status="renamed"] {
+  color: var(--color-warning);
+}
+
+.fileStatus[data-status="modified"] {
+  color: var(--color-accent);
+}
+
+.chunk {
+  /* chunks within a file entry */
+}
+
+.chunkHeader {
+  padding: 4px 16px;
+  font-size: 0.8rem;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  color: var(--color-text-muted);
+  background: var(--color-accent-muted);
+}
+
+.diffTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas,
+    "Liberation Mono", monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  table-layout: fixed;
+}
+
+.line {
+  /* base style for all lines */
+}
+
+.line.add {
+  background: var(--color-add-bg);
+}
+
+.line.delete {
+  background: var(--color-delete-bg);
+}
+
+.lineNumber {
+  width: 50px;
+  padding: 0 8px;
+  text-align: right;
+  color: var(--color-text-muted);
+  opacity: 0.5;
+  user-select: none;
+  vertical-align: top;
+}
+
+.linePrefix {
+  width: 20px;
+  padding: 0;
+  text-align: center;
+  color: var(--color-text-muted);
+  user-select: none;
+  vertical-align: top;
+}
+
+.add .linePrefix {
+  color: var(--color-add-text);
+}
+
+.delete .linePrefix {
+  color: var(--color-delete-text);
+}
+
+.lineContent {
+  padding: 0 16px 0 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.lineContent pre {
+  margin: 0;
+  font: inherit;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.annotationRow td {
+  padding: 0;
+}

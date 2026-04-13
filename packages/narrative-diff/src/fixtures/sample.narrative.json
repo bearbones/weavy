@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "title": "Add user authentication",
+  "description": "Introduces user accounts, login, session management, and role-based access control.",
+  "sections": [
+    {
+      "id": "overview",
+      "heading": "Documentation: what this PR does",
+      "rationale": "Start with the docs to understand the big picture before diving into implementation.",
+      "files": ["docs/auth.md"],
+      "crossLinks": ["routes"],
+      "annotations": [
+        {
+          "file": "docs/auth.md",
+          "line": 16,
+          "body": "The 24-hour session expiry is hardcoded in `auth.ts`. Consider making this configurable.",
+          "kind": "suggestion"
+        }
+      ],
+      "owners": ["@docs-team"]
+    },
+    {
+      "id": "schema",
+      "heading": "Database schema: users and sessions tables",
+      "rationale": "The data model is the foundation — understand the tables before seeing the code that queries them.",
+      "files": ["src/db/migrations/002_users.sql"],
+      "crossLinks": ["types"],
+      "annotations": [
+        {
+          "file": "src/db/migrations/002_users.sql",
+          "line": 5,
+          "body": "Using TEXT for password_hash is fine — bcrypt hashes are always 60 chars, but TEXT avoids migration if we switch algorithms.",
+          "kind": "info"
+        }
+      ],
+      "owners": ["@backend-team"]
+    },
+    {
+      "id": "types",
+      "heading": "TypeScript types: User, UserRole, UserSession",
+      "rationale": "The type definitions mirror the DB schema and define the API contract.",
+      "files": ["src/types/user.ts"],
+      "crossLinks": ["schema", "auth-logic"],
+      "owners": ["@backend-team"]
+    },
+    {
+      "id": "auth-logic",
+      "heading": "Core auth logic: createUser and login",
+      "rationale": "The main business logic — creating users and authenticating them.",
+      "files": ["src/api/auth.ts"],
+      "crossLinks": ["types", "middleware"],
+      "annotations": [
+        {
+          "file": "src/api/auth.ts",
+          "line": 7,
+          "body": "Good — checking for existing users before insert prevents duplicate accounts.",
+          "kind": "info"
+        },
+        {
+          "file": "src/api/auth.ts",
+          "line": 30,
+          "body": "Both missing-user and wrong-password return the same error message. This prevents user enumeration attacks.",
+          "kind": "info"
+        }
+      ],
+      "owners": ["@backend-team"]
+    },
+    {
+      "id": "middleware",
+      "heading": "Auth middleware: requireAuth and requireRole",
+      "rationale": "The middleware enforces auth on protected routes — this is where the session token is validated.",
+      "files": ["src/middleware/auth.ts"],
+      "crossLinks": ["auth-logic", "routes"],
+      "annotations": [
+        {
+          "file": "src/middleware/auth.ts",
+          "line": 12,
+          "body": "Note: `findByToken` is synchronous here but `findById` in `requireRole` is async. Is the sessions lookup cached?",
+          "kind": "question"
+        }
+      ],
+      "owners": ["@backend-team"]
+    },
+    {
+      "id": "routes",
+      "heading": "Route wiring: new endpoints added",
+      "rationale": "Finally, see how the new auth endpoints are mounted alongside existing routes.",
+      "files": ["src/api/routes.ts"],
+      "crossLinks": ["auth-logic", "overview"],
+      "owners": ["@backend-team"]
+    }
+  ]
+}

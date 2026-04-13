@@ -15,6 +15,16 @@ A JetBrains plugin that detects when keystrokes look like a toddler or pet mashi
 - **Unlock**: Type "unlock" to return to editing (~1 in 309 million chance of random success)
 - **Targets all JetBrains IDEs**: IntelliJ IDEA, WebStorm, PyCharm, GoLand, CLion, Rider, etc.
 
+### [narrative-diff](packages/narrative-diff/)
+
+A modern, opinionated diff viewer that presents code changes in **narrative order** — the order that supports understanding — rather than file-tree alphabetical order.
+
+- **Narrative specs**: JSON configuration defining section order, cross-links, and annotations for a diff
+- **Feed-style UI**: Scroll through curated sections with focus highlighting, viewed/pinned status, and inline annotations
+- **Cross-links**: Wiki-style connections between related sections, shown in a side panel
+- **Owner filtering**: CODEOWNERS-style patterns for "files owned by me" filtering
+- **Keyboard-driven**: `j`/`k` navigation, `v` to mark viewed, `p` to pin
+
 ## Repository structure
 
 ```
@@ -23,6 +33,7 @@ weavy/
     toddler-proof-intellij/     # JetBrains plugin (Kotlin/Gradle)
       detection-engine/          # Pure Kotlin detection library (no IDE deps)
       intellij-plugin/           # IntelliJ platform integration
+    narrative-diff/              # Diff viewer web app (TypeScript/React/Vite)
 ```
 
 ## License
