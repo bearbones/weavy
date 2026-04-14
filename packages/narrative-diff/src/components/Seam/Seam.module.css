@@ -1,0 +1,13 @@
+.seam {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.line {
+  width: 2px;
+  height: 24px;
+  background: var(--color-border);
+  border-radius: 1px;
+}

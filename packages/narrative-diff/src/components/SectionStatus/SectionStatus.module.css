@@ -1,0 +1,44 @@
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.button {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.button:hover {
+  color: var(--color-accent);
+  background: var(--color-accent-muted);
+}
+
+.button.active {
+  color: var(--color-accent);
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+.checkbox input {
+  accent-color: var(--color-add-text);
+  cursor: pointer;
+}
+
+.checkmark {
+  white-space: nowrap;
+}

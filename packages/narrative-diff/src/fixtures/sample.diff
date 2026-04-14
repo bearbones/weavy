@@ -1,0 +1,177 @@
+diff --git a/src/types/user.ts b/src/types/user.ts
+new file mode 100644
+index 0000000..a1b2c3d
+--- /dev/null
++++ b/src/types/user.ts
+@@ -0,0 +1,22 @@
++export interface User {
++  id: string;
++  email: string;
++  displayName: string;
++  role: UserRole;
++  createdAt: Date;
++  lastLoginAt: Date | null;
++}
++
++export type UserRole = "admin" | "editor" | "viewer";
++
++export interface CreateUserRequest {
++  email: string;
++  displayName: string;
++  role: UserRole;
++}
++
++export interface UserSession {
++  userId: string;
++  token: string;
++  expiresAt: Date;
++}
+diff --git a/src/api/auth.ts b/src/api/auth.ts
+new file mode 100644
+index 0000000..d4e5f6a
+--- /dev/null
++++ b/src/api/auth.ts
+@@ -0,0 +1,45 @@
++import { db } from "../db/connection";
++import { hashPassword, verifyPassword } from "../utils/crypto";
++import type { User, UserSession, CreateUserRequest } from "../types/user";
++
++export async function createUser(req: CreateUserRequest): Promise<User> {
++  const existing = await db.users.findByEmail(req.email);
++  if (existing) {
++    throw new Error("User with this email already exists");
++  }
++
++  const user = await db.users.insert({
++    email: req.email,
++    displayName: req.displayName,
++    role: req.role,
++    createdAt: new Date(),
++    lastLoginAt: null,
++  });
++
++  return user;
++}
++
++export async function login(
++  email: string,
++  password: string,
++): Promise<UserSession> {
++  const user = await db.users.findByEmail(email);
++  if (!user) {
++    throw new Error("Invalid credentials");
++  }
++
++  const valid = await verifyPassword(password, user.passwordHash);
++  if (!valid) {
++    throw new Error("Invalid credentials");
++  }
++
++  await db.users.update(user.id, { lastLoginAt: new Date() });
++
++  const session = await db.sessions.create({
++    userId: user.id,
++    token: crypto.randomUUID(),
++    expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
++  });
++
++  return session;
++}
+diff --git a/src/api/routes.ts b/src/api/routes.ts
+index 1234567..89abcde 100644
+--- a/src/api/routes.ts
++++ b/src/api/routes.ts
+@@ -1,8 +1,12 @@
+ import { Router } from "express";
+ import { listItems, createItem, deleteItem } from "./items";
++import { createUser, login } from "./auth";
+
+ const router = Router();
+
++router.post("/users", createUser);
++router.post("/login", login);
++
+ router.get("/items", listItems);
+ router.post("/items", createItem);
+ router.delete("/items/:id", deleteItem);
+diff --git a/src/middleware/auth.ts b/src/middleware/auth.ts
+new file mode 100644
+index 0000000..f7a8b9c
+--- /dev/null
++++ b/src/middleware/auth.ts
+@@ -0,0 +1,28 @@
++import type { Request, Response, NextFunction } from "express";
++import { db } from "../db/connection";
++import type { UserRole } from "../types/user";
++
++export function requireAuth(req: Request, res: Response, next: NextFunction) {
++  const token = req.headers.authorization?.replace("Bearer ", "");
++  if (!token) {
++    return res.status(401).json({ error: "Authentication required" });
++  }
++
++  const session = db.sessions.findByToken(token);
++  if (!session || session.expiresAt < new Date()) {
++    return res.status(401).json({ error: "Session expired" });
++  }
++
++  req.userId = session.userId;
++  next();
++}
++
++export function requireRole(...roles: UserRole[]) {
++  return async (req: Request, res: Response, next: NextFunction) => {
++    const user = await db.users.findById(req.userId!);
++    if (!user || !roles.includes(user.role)) {
++      return res.status(403).json({ error: "Insufficient permissions" });
++    }
++    next();
++  };
++}
+diff --git a/docs/auth.md b/docs/auth.md
+new file mode 100644
+index 0000000..0011223
+--- /dev/null
++++ b/docs/auth.md
+@@ -0,0 +1,18 @@
++# Authentication
++
++## Overview
++
++The API uses token-based authentication with session management.
++
++## Endpoints
++
++- `POST /users` — Create a new user account
++- `POST /login` — Authenticate and receive a session token
++
++## Usage
++
++1. Create a user with `POST /users`
++2. Login with `POST /login` to receive a session token
++3. Include the token in subsequent requests: `Authorization: Bearer <token>`
++
++Sessions expire after 24 hours.
+diff --git a/src/db/migrations/002_users.sql b/src/db/migrations/002_users.sql
+new file mode 100644
+index 0000000..4455667
+--- /dev/null
++++ b/src/db/migrations/002_users.sql
+@@ -0,0 +1,17 @@
++CREATE TABLE users (
++  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
++  email TEXT UNIQUE NOT NULL,
++  display_name TEXT NOT NULL,
++  password_hash TEXT NOT NULL,
++  role TEXT NOT NULL DEFAULT 'viewer',
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
++  last_login_at TIMESTAMPTZ
++);
++
++CREATE TABLE sessions (
++  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
++  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
++  token TEXT UNIQUE NOT NULL,
++  expires_at TIMESTAMPTZ NOT NULL,
++  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
++);

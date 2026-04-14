@@ -11,6 +11,7 @@ packages/
   toddler-proof-intellij/   # JetBrains plugin — Kotlin/Gradle
     detection-engine/        # Pure Kotlin library, no IDE dependencies
     intellij-plugin/         # IntelliJ platform integration layer
+  narrative-diff/            # Diff viewer web app — TypeScript/React/Vite
 ```
 
 ## Conventions
@@ -33,11 +34,22 @@ cd packages/toddler-proof-intellij
 ./gradlew :intellij-plugin:buildPlugin  # Build distributable plugin zip
 ```
 
+### narrative-diff
+
+```bash
+cd packages/narrative-diff
+npm run dev          # Start Vite dev server
+npm run typecheck    # Type-check without emitting
+npm run build        # Production build
+```
+
 ## Tech stack notes
 
 - **Kotlin 2.0.21**, **Java 21**, **Gradle 8.14.3**
 - The `detection-engine` module is intentionally free of IntelliJ dependencies so it can be reused in other contexts (Chrome extension, web app, etc.)
 - The `intellij-plugin` module uses `org.jetbrains.intellij` Gradle plugin v1.17.4 and targets IntelliJ Platform 2024.3+ (build 243+)
+
+- **React 19**, **TypeScript 5.8**, **Vite 6**, **Zustand 5** (narrative-diff)
 
 ## Future directions
 
