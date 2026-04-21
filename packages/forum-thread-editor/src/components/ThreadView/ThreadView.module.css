@@ -1,0 +1,55 @@
+.thread {
+  max-width: 1000px;
+  margin: 20px auto;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.titleBar {
+  display: flex;
+  align-items: center;
+  padding: 6px 12px;
+  background: var(--color-header-bg);
+  color: var(--color-header-text);
+  border-radius: 3px;
+}
+
+.titleInput {
+  flex: 1;
+  background: transparent;
+  color: var(--color-header-text);
+  border: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 6px 4px;
+}
+
+.titleInput:focus {
+  outline: 1px solid rgba(255, 255, 255, 0.25);
+  outline-offset: 2px;
+}
+
+.posts {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  margin: 0;
+}
+
+.empty {
+  padding: 32px;
+  text-align: center;
+  color: var(--color-text-muted);
+  background: var(--color-panel);
+  border: 1px dashed var(--color-border);
+  border-radius: 3px;
+}
+
+.composerWrap {
+  margin-top: 8px;
+}

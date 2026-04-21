@@ -12,6 +12,7 @@ packages/
     detection-engine/        # Pure Kotlin library, no IDE dependencies
     intellij-plugin/         # IntelliJ platform integration layer
   narrative-diff/            # Diff viewer web app — TypeScript/React/Vite
+  forum-thread-editor/       # Fictional-forum authoring tool — TypeScript/React/Vite
 ```
 
 ## Conventions
@@ -43,13 +44,25 @@ npm run typecheck    # Type-check without emitting
 npm run build        # Production build
 ```
 
+### forum-thread-editor
+
+```bash
+cd packages/forum-thread-editor
+npm run dev          # Start Vite dev server
+npm run typecheck    # Type-check without emitting
+npm run build        # Production build
+```
+
+Authoring tool for fictional forum threads. Exports portable `.zip` bundles (`project.json` + `assets/`) designed to be consumed by games or other presentation layers. BBCode subset is intentionally restricted to tags that round-trip to Unity TextMeshPro and Roblox rich text.
+
 ## Tech stack notes
 
 - **Kotlin 2.0.21**, **Java 21**, **Gradle 8.14.3**
 - The `detection-engine` module is intentionally free of IntelliJ dependencies so it can be reused in other contexts (Chrome extension, web app, etc.)
 - The `intellij-plugin` module uses `org.jetbrains.intellij` Gradle plugin v1.17.4 and targets IntelliJ Platform 2024.3+ (build 243+)
 
-- **React 19**, **TypeScript 5.8**, **Vite 6**, **Zustand 5** (narrative-diff)
+- **React 19**, **TypeScript 5.8**, **Vite 6**, **Zustand 5** (narrative-diff, forum-thread-editor)
+- **JSZip 3** (forum-thread-editor only — for portable bundle export)
 
 ## Future directions
 

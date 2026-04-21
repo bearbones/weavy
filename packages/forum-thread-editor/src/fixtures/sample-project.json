@@ -1,0 +1,63 @@
+{
+  "schemaVersion": 1,
+  "users": {
+    "u-eris": {
+      "id": "u-eris",
+      "name": "ErisWanderer",
+      "avatarAssetId": null,
+      "tagline": "hunts the strange, archives the stranger",
+      "rank": "Senior Cartographer",
+      "joinDate": "2012-08-14",
+      "postCount": 1842,
+      "signature": "[i]\"If the map disagrees with the ground, trust the ground.\"[/i]"
+    },
+    "u-freeman": {
+      "id": "u-freeman",
+      "name": "CaptainFreeman",
+      "avatarAssetId": null,
+      "tagline": "still convinced the basement door moves",
+      "rank": "Moderator",
+      "joinDate": "2009-02-03",
+      "postCount": 5201,
+      "signature": "[b]Forum rule 3:[/b] no posting co-ords past midnight."
+    },
+    "u-ghost": {
+      "id": "u-ghost",
+      "name": "DataGhost42",
+      "avatarAssetId": null,
+      "tagline": "lurking since forever",
+      "rank": "Junior Member",
+      "joinDate": "2023-11-30",
+      "postCount": 37
+    }
+  },
+  "posts": {
+    "p-1": {
+      "id": "p-1",
+      "authorId": "u-eris",
+      "body": "Alright, back from the ridge. Putting this up before I lose signal again.\n\n[b]Summary:[/b] the trail marker at grid [color=#b45309]K-17[/color] is [s]missing[/s] [b]moved[/b]. Fresh cut, no moss. Someone rearranged it in the last [size=4]two weeks[/size].\n\nI'm not saying anything yet. Just logging it.",
+      "timestamp": "2026-04-14T19:22:00.000Z"
+    },
+    "p-2": {
+      "id": "p-2",
+      "authorId": "u-freeman",
+      "body": "Thanks for the log. Attaching this to the active watch thread.\n\nReminder to everyone: [mark]do not go up there alone.[/mark] Pair up, leave a chit with the lodge, check in by 1800.\n\n[i]— locking replies overnight, reopen tomorrow.[/i]",
+      "timestamp": "2026-04-14T20:05:00.000Z"
+    },
+    "p-3": {
+      "id": "p-3",
+      "authorId": "u-ghost",
+      "body": "First post here, sorry if this is the wrong place.\n\nI was on the ridge two weekends ago and I thought I was seeing things, but the stone at K-17 was already pointing [b]east[/b]. The ranger at the lodge told me it was supposed to point north.\n\nI have a photo if it helps. Can DM.",
+      "timestamp": "2026-04-15T08:47:00.000Z",
+      "editedAt": "2026-04-15T08:52:00.000Z",
+      "editedByUserId": "u-ghost"
+    }
+  },
+  "assets": {},
+  "thread": {
+    "id": "t-ridge",
+    "title": "Ridge marker K-17 — moved, or am I losing it?",
+    "postIds": ["p-1", "p-2", "p-3"]
+  },
+  "updatedAt": "2026-04-15T08:52:00.000Z"
+}

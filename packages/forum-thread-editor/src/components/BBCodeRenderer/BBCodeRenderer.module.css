@@ -1,0 +1,33 @@
+.rendered {
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.rendered :global(.bb-size-1) {
+  font-size: 0.7em;
+}
+.rendered :global(.bb-size-2) {
+  font-size: 0.85em;
+}
+.rendered :global(.bb-size-3) {
+  font-size: 1em;
+}
+.rendered :global(.bb-size-4) {
+  font-size: 1.15em;
+}
+.rendered :global(.bb-size-5) {
+  font-size: 1.35em;
+}
+.rendered :global(.bb-size-6) {
+  font-size: 1.6em;
+}
+.rendered :global(.bb-size-7) {
+  font-size: 2em;
+}
+
+.rendered :global(mark) {
+  background: #fff59d;
+  color: #000;
+  padding: 0 0.15em;
+}
