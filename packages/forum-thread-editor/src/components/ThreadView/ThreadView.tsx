@@ -5,10 +5,20 @@ import { NewPostComposer } from "@/components/NewPostComposer/NewPostComposer";
 import styles from "./ThreadView.module.css";
 
 export function ThreadView() {
-  const title = useEditorStore((s) => s.project.thread.title);
-  const setThreadTitle = useEditorStore((s) => s.setThreadTitle);
-  const postIds = useEditorStore((s) => s.project.thread.postIds);
+  const currentThreadId = useEditorStore((s) => s.currentThreadId);
+  const thread = useEditorStore((s) => s.project.threads[currentThreadId]);
+  const renameThread = useEditorStore((s) => s.renameThread);
   const editingPostId = useEditorStore((s) => s.editingPostId);
+
+  if (!thread) {
+    return (
+      <div className={styles.thread}>
+        <div className={styles.empty}>No thread selected.</div>
+      </div>
+    );
+  }
+
+  const { title, postIds } = thread;
 
   return (
     <div className={styles.thread}>
@@ -17,7 +27,7 @@ export function ThreadView() {
           type="text"
           className={styles.titleInput}
           value={title}
-          onChange={(e) => setThreadTitle(e.target.value)}
+          onChange={(e) => renameThread(currentThreadId, e.target.value)}
           placeholder="Thread title"
         />
       </div>

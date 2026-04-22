@@ -7,6 +7,7 @@ import type {
   SerializedForumProject,
 } from "@/types";
 import { CURRENT_SCHEMA_VERSION } from "@/types";
+import { migrateProject } from "./migrate";
 
 const PROJECT_JSON_PATH = "project.json";
 const ASSETS_DIR = "assets";
@@ -62,24 +63,6 @@ export async function packProject(project: ForumProject): Promise<Blob> {
   return zip.generateAsync({ type: "blob" });
 }
 
-function validateSerialized(value: unknown): SerializedForumProject {
-  if (!value || typeof value !== "object") {
-    throw new Error("Invalid project.json: not an object");
-  }
-  const v = value as Record<string, unknown>;
-  if (v.schemaVersion !== CURRENT_SCHEMA_VERSION) {
-    throw new Error(
-      `Unsupported schemaVersion: ${String(v.schemaVersion)}`,
-    );
-  }
-  for (const key of ["users", "posts", "assets", "thread"] as const) {
-    if (typeof v[key] !== "object" || v[key] === null) {
-      throw new Error(`Invalid project.json: missing ${key}`);
-    }
-  }
-  return v as unknown as SerializedForumProject;
-}
-
 export async function unpackProject(file: File): Promise<ForumProject> {
   const zip = await JSZip.loadAsync(file);
   const jsonEntry = zip.file(PROJECT_JSON_PATH);
@@ -87,7 +70,7 @@ export async function unpackProject(file: File): Promise<ForumProject> {
 
   const raw = await jsonEntry.async("string");
   const parsed = JSON.parse(raw) as unknown;
-  const serialized = validateSerialized(parsed);
+  const serialized = migrateProject<SerializedAsset>(parsed);
 
   const hydratedAssets: Record<string, Asset> = {};
   for (const asset of Object.values(serialized.assets)) {
@@ -111,10 +94,12 @@ export async function unpackProject(file: File): Promise<ForumProject> {
 
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
+    projectTitle: serialized.projectTitle,
     users: serialized.users,
     posts: serialized.posts,
     assets: hydratedAssets,
-    thread: serialized.thread,
+    threads: serialized.threads,
+    threadOrder: serialized.threadOrder,
     updatedAt: serialized.updatedAt,
   };
 }

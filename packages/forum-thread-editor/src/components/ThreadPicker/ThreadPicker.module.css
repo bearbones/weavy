@@ -1,0 +1,41 @@
+.picker {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+}
+
+.label {
+  font-size: 0.85rem;
+  color: var(--color-header-text);
+  opacity: 0.85;
+}
+
+.select {
+  max-width: 240px;
+  padding: 3px 6px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
+.picker button {
+  padding: 4px 8px;
+  background: var(--color-header-tab-active);
+  color: var(--color-header-text);
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.8rem;
+}
+
+.picker button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
