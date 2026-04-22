@@ -24,6 +24,18 @@
   margin-right: 8px;
 }
 
+.projectTitle {
+  min-width: 140px;
+  max-width: 240px;
+  padding: 4px 8px;
+  background: var(--color-input-bg);
+  color: var(--color-text);
+  border: 1px solid rgba(0, 0, 0, 0.25);
+  border-radius: 3px;
+  font-family: inherit;
+  font-size: 0.85rem;
+}
+
 .tabs {
   display: inline-flex;
   gap: 2px;

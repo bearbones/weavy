@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useEditorStore } from "@/store";
-import type { ForumProject } from "@/types";
-import { CURRENT_SCHEMA_VERSION } from "@/types";
+import type { Asset, ForumProject } from "@/types";
 import sampleProject from "@/fixtures/sample-project.json";
+import { migrateProject } from "@/utils/migrate";
 
 const STORAGE_KEY = "forum-thread-editor:project:v1";
 const DEBOUNCE_MS = 200;
@@ -12,15 +12,7 @@ function readStored(): ForumProject | null {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as unknown;
-    if (
-      !parsed ||
-      typeof parsed !== "object" ||
-      (parsed as { schemaVersion?: unknown }).schemaVersion !==
-        CURRENT_SCHEMA_VERSION
-    ) {
-      return null;
-    }
-    return parsed as ForumProject;
+    return migrateProject<Asset>(parsed);
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn("Failed to read stored project:", err);
@@ -37,15 +29,17 @@ function writeStored(project: ForumProject): void {
   }
 }
 
+function loadSample(): ForumProject {
+  return migrateProject<Asset>(sampleProject);
+}
+
 export function useLocalStoragePersistence(): void {
   useEffect(() => {
     const stored = readStored();
     if (stored) {
       useEditorStore.getState().loadProject(stored);
     } else {
-      useEditorStore
-        .getState()
-        .loadProject(sampleProject as unknown as ForumProject);
+      useEditorStore.getState().loadProject(loadSample());
     }
     useEditorStore.getState().markHydrated();
 

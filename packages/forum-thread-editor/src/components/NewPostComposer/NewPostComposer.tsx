@@ -6,7 +6,10 @@ import styles from "./NewPostComposer.module.css";
 
 export function NewPostComposer() {
   const users = useEditorStore((s) => s.project.users);
-  const postIds = useEditorStore((s) => s.project.thread.postIds);
+  const currentThreadId = useEditorStore((s) => s.currentThreadId);
+  const postIds = useEditorStore(
+    (s) => s.project.threads[currentThreadId]?.postIds ?? [],
+  );
   const posts = useEditorStore((s) => s.project.posts);
   const createPost = useEditorStore((s) => s.createPost);
 

@@ -5,6 +5,7 @@ import type {
   EditorState,
   ForumProject,
   Post,
+  Thread,
   User,
 } from "@/types";
 import { CURRENT_SCHEMA_VERSION } from "@/types";
@@ -34,16 +35,19 @@ function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 export function createEmptyProject(): ForumProject {
+  const seedThread: Thread = {
+    id: newId(),
+    title: "Untitled thread",
+    postIds: [],
+  };
   return {
     schemaVersion: CURRENT_SCHEMA_VERSION,
+    projectTitle: "Untitled project",
     users: {},
     posts: {},
     assets: {},
-    thread: {
-      id: newId(),
-      title: "Untitled thread",
-      postIds: [],
-    },
+    threads: { [seedThread.id]: seedThread },
+    threadOrder: [seedThread.id],
     updatedAt: nowIso(),
   };
 }
@@ -52,9 +56,23 @@ function touch(project: ForumProject): ForumProject {
   return { ...project, updatedAt: nowIso() };
 }
 
+function findThreadIdForPost(
+  project: ForumProject,
+  postId: string,
+): string | null {
+  for (const tid of project.threadOrder) {
+    if (project.threads[tid]?.postIds.includes(postId)) return tid;
+  }
+  return null;
+}
+
+const emptyProject = createEmptyProject();
+const emptyProjectFirstThread = emptyProject.threadOrder[0]!;
+
 export const useEditorStore = create<EditorState>()((set, get) => ({
-  project: createEmptyProject(),
+  project: emptyProject,
   currentView: "thread",
+  currentThreadId: emptyProjectFirstThread,
   editingUserId: null,
   editingPostId: null,
   hydrated: false,
@@ -138,16 +156,24 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       body,
       timestamp: timestamp ?? nowIso(),
     };
-    set((s) => ({
-      project: touch({
-        ...s.project,
-        posts: { ...s.project.posts, [id]: post },
-        thread: {
-          ...s.project.thread,
-          postIds: [...s.project.thread.postIds, id],
-        },
-      }),
-    }));
+    set((s) => {
+      const threadId = s.currentThreadId;
+      const thread = s.project.threads[threadId];
+      if (!thread) return {};
+      return {
+        project: touch({
+          ...s.project,
+          posts: { ...s.project.posts, [id]: post },
+          threads: {
+            ...s.project.threads,
+            [threadId]: {
+              ...thread,
+              postIds: [...thread.postIds, id],
+            },
+          },
+        }),
+      };
+    });
     return id;
   },
 
@@ -172,16 +198,24 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
 
   deletePost: (id) => {
     set((s) => {
+      const owningThreadId = findThreadIdForPost(s.project, id);
       const nextPosts = { ...s.project.posts };
       delete nextPosts[id];
+      const nextThreads = { ...s.project.threads };
+      if (owningThreadId) {
+        const owning = nextThreads[owningThreadId];
+        if (owning) {
+          nextThreads[owningThreadId] = {
+            ...owning,
+            postIds: owning.postIds.filter((pid) => pid !== id),
+          };
+        }
+      }
       return {
         project: touch({
           ...s.project,
           posts: nextPosts,
-          thread: {
-            ...s.project.thread,
-            postIds: s.project.thread.postIds.filter((pid) => pid !== id),
-          },
+          threads: nextThreads,
         }),
         editingPostId:
           s.editingPostId === id ? null : s.editingPostId,
@@ -208,7 +242,11 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
 
   movePost: (id, toIndex) => {
     set((s) => {
-      const ids = s.project.thread.postIds;
+      const threadId = findThreadIdForPost(s.project, id);
+      if (!threadId) return {};
+      const thread = s.project.threads[threadId];
+      if (!thread) return {};
+      const ids = thread.postIds;
       const from = ids.indexOf(id);
       if (from < 0) return {};
       const clampedTo = Math.max(0, Math.min(ids.length - 1, toIndex));
@@ -219,29 +257,145 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
       return {
         project: touch({
           ...s.project,
-          thread: { ...s.project.thread, postIds: next },
+          threads: {
+            ...s.project.threads,
+            [threadId]: { ...thread, postIds: next },
+          },
         }),
       };
     });
   },
 
   movePostUp: (id) => {
-    const ids = get().project.thread.postIds;
-    const idx = ids.indexOf(id);
+    const project = get().project;
+    const threadId = findThreadIdForPost(project, id);
+    if (!threadId) return;
+    const thread = project.threads[threadId];
+    if (!thread) return;
+    const idx = thread.postIds.indexOf(id);
     if (idx > 0) get().movePost(id, idx - 1);
   },
 
   movePostDown: (id) => {
-    const ids = get().project.thread.postIds;
+    const project = get().project;
+    const threadId = findThreadIdForPost(project, id);
+    if (!threadId) return;
+    const thread = project.threads[threadId];
+    if (!thread) return;
+    const ids = thread.postIds;
     const idx = ids.indexOf(id);
     if (idx >= 0 && idx < ids.length - 1) get().movePost(id, idx + 1);
   },
 
-  setThreadTitle: (title) => {
+  createThread: (title) => {
+    const id = newId();
+    const thread: Thread = {
+      id,
+      title: title ?? "New thread",
+      postIds: [],
+    };
     set((s) => ({
       project: touch({
         ...s.project,
-        thread: { ...s.project.thread, title },
+        threads: { ...s.project.threads, [id]: thread },
+        threadOrder: [...s.project.threadOrder, id],
+      }),
+      currentThreadId: id,
+    }));
+    return id;
+  },
+
+  renameThread: (id, title) => {
+    set((s) => {
+      const thread = s.project.threads[id];
+      if (!thread) return {};
+      return {
+        project: touch({
+          ...s.project,
+          threads: {
+            ...s.project.threads,
+            [id]: { ...thread, title },
+          },
+        }),
+      };
+    });
+  },
+
+  deleteThread: (id) => {
+    const s = get();
+    if (s.project.threadOrder.length <= 1) {
+      set({
+        ioError:
+          "Can't delete the only thread. Create another thread first.",
+      });
+      return;
+    }
+    const thread = s.project.threads[id];
+    if (!thread) return;
+    set((state) => {
+      const nextThreads = { ...state.project.threads };
+      delete nextThreads[id];
+      const nextOrder = state.project.threadOrder.filter((tid) => tid !== id);
+      const nextPosts = { ...state.project.posts };
+      for (const pid of thread.postIds) {
+        delete nextPosts[pid];
+      }
+      let nextCurrent = state.currentThreadId;
+      if (nextCurrent === id) {
+        const removedIdx = state.project.threadOrder.indexOf(id);
+        const fallbackIdx = Math.max(
+          0,
+          Math.min(removedIdx, nextOrder.length - 1),
+        );
+        nextCurrent = nextOrder[fallbackIdx] ?? state.currentThreadId;
+      }
+      const nextEditingPostId =
+        state.editingPostId && thread.postIds.includes(state.editingPostId)
+          ? null
+          : state.editingPostId;
+      return {
+        project: touch({
+          ...state.project,
+          threads: nextThreads,
+          threadOrder: nextOrder,
+          posts: nextPosts,
+        }),
+        currentThreadId: nextCurrent,
+        editingPostId: nextEditingPostId,
+      };
+    });
+  },
+
+  setCurrentThreadId: (id) => {
+    const s = get();
+    if (!s.project.threads[id]) return;
+    set({ currentThreadId: id, editingPostId: null });
+  },
+
+  moveThread: (id, toIndex) => {
+    set((s) => {
+      const order = s.project.threadOrder;
+      const from = order.indexOf(id);
+      if (from < 0) return {};
+      const clampedTo = Math.max(0, Math.min(order.length - 1, toIndex));
+      if (from === clampedTo) return {};
+      const next = order.slice();
+      next.splice(from, 1);
+      next.splice(clampedTo, 0, id);
+      return {
+        project: touch({
+          ...s.project,
+          threadOrder: next,
+        }),
+      };
+    });
+  },
+
+  setProjectTitle: (title) => {
+    set((s) => ({
+      project: touch({
+        ...s.project,
+        projectTitle: title,
       }),
     }));
   },
@@ -286,8 +440,10 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   },
 
   loadProject: (project) => {
+    const firstThread = project.threadOrder[0];
     set({
       project,
+      currentThreadId: firstThread,
       editingUserId: null,
       editingPostId: null,
       ioError: null,
@@ -295,8 +451,10 @@ export const useEditorStore = create<EditorState>()((set, get) => ({
   },
 
   resetProject: () => {
+    const fresh = createEmptyProject();
     set({
-      project: createEmptyProject(),
+      project: fresh,
+      currentThreadId: fresh.threadOrder[0],
       editingUserId: null,
       editingPostId: null,
       ioError: null,

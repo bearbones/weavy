@@ -8,7 +8,7 @@ export function useProjectIO() {
     try {
       const project = useEditorStore.getState().project;
       const blob = await packProject(project);
-      const name = `${slugify(project.thread.title)}.zip`;
+      const name = `${slugify(project.projectTitle || "forum-project")}.zip`;
       downloadBlob(name, blob);
       useEditorStore.getState().setIoError(null);
     } catch (err) {

@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { useEditorStore } from "@/store";
 import { useProjectIO } from "@/hooks/use-project-io";
+import { ThreadPicker } from "@/components/ThreadPicker/ThreadPicker";
 import styles from "./Toolbar.module.css";
 
 export function Toolbar() {
@@ -10,6 +11,8 @@ export function Toolbar() {
   const setIoError = useEditorStore((s) => s.setIoError);
   const createUser = useEditorStore((s) => s.createUser);
   const setEditingUserId = useEditorStore((s) => s.setEditingUserId);
+  const projectTitle = useEditorStore((s) => s.project.projectTitle);
+  const setProjectTitle = useEditorStore((s) => s.setProjectTitle);
   const { exportBundle, importBundle } = useProjectIO();
   const importInputRef = useRef<HTMLInputElement>(null);
 
@@ -33,6 +36,14 @@ export function Toolbar() {
     <div className={styles.toolbarWrap}>
       <header className={styles.toolbar}>
         <div className={styles.brand}>Forum Thread Editor</div>
+        <input
+          type="text"
+          className={styles.projectTitle}
+          value={projectTitle}
+          onChange={(e) => setProjectTitle(e.target.value)}
+          placeholder="Project title"
+          aria-label="Project title"
+        />
         <div className={styles.tabs}>
           <button
             type="button"
@@ -49,6 +60,7 @@ export function Toolbar() {
             Users
           </button>
         </div>
+        {currentView === "thread" && <ThreadPicker />}
         <div className={styles.actions}>
           <button type="button" onClick={handleNewUser}>
             + New user

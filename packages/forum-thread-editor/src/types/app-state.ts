@@ -7,6 +7,7 @@ export type EditorView = "thread" | "users";
 export interface EditorState {
   project: ForumProject;
   currentView: EditorView;
+  currentThreadId: string;
   editingUserId: string | null;
   editingPostId: string | null;
   hydrated: boolean;
@@ -32,8 +33,15 @@ export interface EditorState {
   movePostDown: (id: string) => void;
   movePost: (id: string, toIndex: number) => void;
 
-  // Thread
-  setThreadTitle: (title: string) => void;
+  // Thread actions
+  createThread: (title?: string) => string;
+  renameThread: (id: string, title: string) => void;
+  deleteThread: (id: string) => void;
+  setCurrentThreadId: (id: string) => void;
+  moveThread: (id: string, toIndex: number) => void;
+
+  // Project-level
+  setProjectTitle: (title: string) => void;
 
   // Assets
   addAsset: (file: File) => Promise<string>;
