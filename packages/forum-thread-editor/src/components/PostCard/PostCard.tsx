@@ -120,6 +120,7 @@ export function PostCard({ postId, index, total }: Props) {
             type="button"
             onClick={() => movePostUp(postId)}
             disabled={index === 0}
+            aria-label="Move post up"
             title="Move up"
           >
             ↑
@@ -128,6 +129,7 @@ export function PostCard({ postId, index, total }: Props) {
             type="button"
             onClick={() => movePostDown(postId)}
             disabled={index === total - 1}
+            aria-label="Move post down"
             title="Move down"
           >
             ↓

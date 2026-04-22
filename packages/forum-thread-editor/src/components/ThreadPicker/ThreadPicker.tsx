@@ -9,9 +9,13 @@ export function ThreadPicker() {
   const createThread = useEditorStore((s) => s.createThread);
   const renameThread = useEditorStore((s) => s.renameThread);
   const deleteThread = useEditorStore((s) => s.deleteThread);
+  const moveThread = useEditorStore((s) => s.moveThread);
 
   const onlyOneThread = threadOrder.length <= 1;
   const currentThread = threads[currentThreadId];
+  const currentIndex = threadOrder.indexOf(currentThreadId);
+  const isFirst = currentIndex <= 0;
+  const isLast = currentIndex < 0 || currentIndex >= threadOrder.length - 1;
 
   const handleRename = () => {
     if (!currentThread) return;
@@ -52,6 +56,24 @@ export function ThreadPicker() {
           );
         })}
       </select>
+      <button
+        type="button"
+        aria-label="Move thread up"
+        title="Move thread up"
+        onClick={() => moveThread(currentThreadId, currentIndex - 1)}
+        disabled={isFirst}
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        aria-label="Move thread down"
+        title="Move thread down"
+        onClick={() => moveThread(currentThreadId, currentIndex + 1)}
+        disabled={isLast}
+      >
+        ↓
+      </button>
       <button type="button" onClick={() => createThread()}>
         + New
       </button>
