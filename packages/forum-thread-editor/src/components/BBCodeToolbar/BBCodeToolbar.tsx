@@ -38,16 +38,6 @@ export function BBCodeToolbar({ textareaRef, onChange }: Props) {
     [onChange, textareaRef],
   );
 
-  const insertColor = useCallback(() => {
-    const input = window.prompt(
-      "Color (hex like #ff0000 or CSS color name):",
-      "#ff0000",
-    );
-    if (!input) return;
-    const trimmed = input.trim();
-    insert({ kind: "wrapAttr", tag: "color", attr: trimmed });
-  }, [insert]);
-
   const insertSize = useCallback(
     (n: number) => insert({ kind: "wrapAttr", tag: "size", attr: String(n) }),
     [insert],
@@ -104,9 +94,17 @@ export function BBCodeToolbar({ textareaRef, onChange }: Props) {
       >
         <mark>hl</mark>
       </button>
-      <button type="button" onClick={insertColor} title="Color">
+      <span className={styles.colorGroup}>
         color
-      </button>
+        <input
+          type="color"
+          aria-label="Pick color"
+          defaultValue="#ff0000"
+          onChange={(e) =>
+            insert({ kind: "wrapAttr", tag: "color", attr: e.target.value })
+          }
+        />
+      </span>
       <span className={styles.sizeGroup}>
         size
         {[1, 2, 3, 4, 5, 6, 7].map((n) => (
